@@ -3,10 +3,12 @@
 const morgan                      = require('morgan');
 const bodyParser                  = require('body-parser');
 const compression                 = require('compression');
-const helmet	                  = require('helmet');
+const helmet	                    = require('helmet');
+const passport                    = require('passport');
 
 
-const user   = require('../routes/user');
+const user    = require('../routes/user');
+const profile = require('../routes/profile');
 
 
 module.exports = (app) =>{
@@ -15,6 +17,8 @@ module.exports = (app) =>{
     app.use(bodyParser.urlencoded({ extended:false }));
     app.use(bodyParser.json());
     app.use(helmet());
+    app.use(passport.initialize());
+    require('../config/passport.config')(passport);
     app.use((req, res, next) => {
         res.header("Access-Control-Allow-Origin", "*");
         res.header(
@@ -28,7 +32,8 @@ module.exports = (app) =>{
         next();
       });
     
-    app.use('/',user);
+    app.use('/api/user',user);
+    app.use('/api/profile',profile);
     
     
 }

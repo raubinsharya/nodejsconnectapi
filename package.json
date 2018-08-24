@@ -9,11 +9,16 @@
   "author": "Raubinsh arya",
   "license": "MIT",
   "dependencies": {
+    "bcrypt": "^3.0.0",
     "body-parser": "^1.18.3",
     "compression": "^1.7.3",
     "express": "^4.16.3",
+    "gravatar": "^1.6.0",
     "helmet": "^3.13.0",
+    "jsonwebtoken": "^8.3.0",
     "mongoose": "^5.2.9",
-    "morgan": "^1.9.0"
+    "morgan": "^1.9.0",
+    "passport": "^0.4.0",
+    "passport-jwt": "^4.0.0"
   }
 }
