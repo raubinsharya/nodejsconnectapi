@@ -145,11 +145,13 @@ router.delete('/experience/:exp_id', passport.authenticate('jwt', {session: fals
         .then(profile =>{
             //Getting the index of experience you want to remove from profile array
             const removeIndex = profile.experience
-            .map(item => item.id)
+            .map(item => item._id.toString())
             .indexOf(req.params.exp_id);
             //removing the experience from profile array after getting index
-            profile.experience.splice(removeIndex, 1);
-            profile.save().then(profile => res.json(profile));            
+            if(removeIndex >=0){
+                profile.experience.splice(removeIndex, 1);
+                profile.save().then(profile => res.json(profile));  
+            }else res.status(404).json({'err': 'Details not available for deletion'});          
         })
 });
 
@@ -161,11 +163,13 @@ router.delete('/education/:edu_id', passport.authenticate('jwt', {session: false
         .then(profile =>{
             //Getting the index of education you want to remove from profile array
             const removeIndex = profile.education
-            .map(item => item.id)
+            .map(item => item._id.toString())
             .indexOf(req.params.edu_id);
             //removing the educaton from profile array after getting index
-            profile.education.splice(removeIndex, 1);
-            profile.save().then(profile => res.json(profile));            
+            if(removeIndex >= 0){
+                profile.education.splice(removeIndex, 1);
+                profile.save().then(profile => res.json(profile)); 
+            }else res.status(404).json({'err': 'Details not available for deletion'});           
         })
 });
 
@@ -177,24 +181,8 @@ router.delete('/', passport.authenticate('jwt', {session: false}), (req, res)=>{
         .then(profile =>{
             USER.findOneAndRemove({_id: req.user.id})
                 .then(user => res.json({'msg': "Profile Deletion successful", user}));   
-        })
+        }).catch(err => res.json(err));
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 const getProfileData = (req)=>{
     var profileFields = {};

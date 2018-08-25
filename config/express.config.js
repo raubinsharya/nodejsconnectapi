@@ -9,7 +9,7 @@ const passport                    = require('passport');
 
 const user    = require('../routes/user');
 const profile = require('../routes/profile');
-
+const posts = require('../routes/posts');
 
 module.exports = (app) =>{
     app.use(compression());	
@@ -34,6 +34,7 @@ module.exports = (app) =>{
     
     app.use('/api/user',user);
     app.use('/api/profile',profile);
+    app.use('/api/post', posts);
     
     
 }
