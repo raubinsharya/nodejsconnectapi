@@ -40,7 +40,9 @@ router.post('/register', (req,res)=>{
                 }).then(user=>{
                         res.json(user);
                 }).catch(err =>{
-                    return res.status(404).json(err.errmsg);
+                    if(err.errmsg.includes('duplicate'))
+                        return res.status(404).json({'msg':'Email Already registered'});
+                    
                 });
         });
     });
@@ -59,7 +61,7 @@ router.post('/login', (req, res)=>{
                     if(!isMatch)
                         return res.status(400).json({'err':'Password incorrect'});
                         else{
-                            const payload = { id: user.id , name: user.name };
+                            const payload = { id: user.id , name: user.name, avatar: user.avatar };
                             jwt.sign(payload, secretKey, { expiresIn: '24h' } , (err, token) =>{
                                 if(err) res.json(err);
                                 else res.json({success: true, 'token': 'bearer '+ token});

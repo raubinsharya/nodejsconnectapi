@@ -17,6 +17,7 @@ router.get('/test', (req, res)=> res.send('Great! Profile Works'));
 //@access   Private
 router.get('/', passport.authenticate('jwt', {session: false}), (req, res)=>{
     Profile.findOne({user: req.user.id})
+    .populate('user','avatar')
         .then(profile =>{
             if(!profile)
                 return res.status(404).json({'error': 'Profile not found'});

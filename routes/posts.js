@@ -18,7 +18,7 @@ router.post('/', passport.authenticate('jwt', {session: false}), (req, res)=>{
     Post.create({
         text: req.body.text,
         name: req.body.name,
-        avatar: req.body.avatar,
+        avatar: req.user.avatar,
         user: req.user.id
     }).then(post => res.json(post)).catch(err => res.json(err));
 });
@@ -28,6 +28,7 @@ router.post('/', passport.authenticate('jwt', {session: false}), (req, res)=>{
 //@access   Private
 router.get('/', (req, res)=>{
     Post.find({})
+    .populate('user','avatar')
     .sort({date: -1})
     .then(posts => res.json(posts))
     .catch(err => res.json(err));
@@ -47,6 +48,7 @@ router.get('/:post_id', (req, res)=>{
 //@access   Private
 router.get('/user/:user', (req, res)=>{
     Post.find({user: req.params.user})
+    .populate('user','avatar')
     .then(posts => res.json(posts))
     .catch(err => res.json({err: 'Post not found'}));
 });
@@ -73,13 +75,13 @@ router.post('/like/:id', passport.authenticate('jwt', {session: false}), (req, r
     Post.findById(req.params.id)
         .then(post =>{
             if(post && post.likes.filter(item => item.user == req.user.id ).length > 0)
-                res.json({err: 'You have already liked this post'});
+                res.status(404).json({err: 'You have already liked this post'});
             else {
                 post.likes.unshift({user: req.user.id});
                 post.save().then(post => res.json(post));
             } 
         })
-        .catch(err => res.json({err: 'Post not found for this id'}));
+        .catch(err => res.status(404).json({err: 'Post not found for this id'}));
 });
 
 //@route    GET api/profile/education
@@ -89,20 +91,15 @@ router.delete('/like/:id', passport.authenticate('jwt', {session: false}), (req,
     Post.findById(req.params.id)
         .then(post =>{
             if(post && post.likes.filter(item => item.user == req.user.id ).length > 0){
-                 
-                const removeIndex = post.likes.map(item => item._id.toString())
-                .indexOf(req.user.id);
-                console.log(removeIndex);
                 
-                post.likes.splice(removeIndex, 1);
+                const index = post.likes.map(item=>{return(item.user.toString() === req.user.id.toString())}).indexOf(true);
+                post.likes.splice(index,1);
                 post.save().then(post => res.json(post));
             }               
-            else {
-               
-                res.json({err: 'You have not liked this post'});
-            } 
+            else res.status(404).json({err: 'You have not liked this post'});
+            
         })
-        .catch(err => res.json({err: 'Post not found for this id'}));
+        .catch(err => res.status(404).json({err: 'Post not found for this id'}));
 });
 
 //@route    POST api/post/comment/:post_id
@@ -113,10 +110,10 @@ router.post('/comment/:post_id', passport.authenticate('jwt', {session: false}),
         .then(post =>{
             const newComment = {
                 text: req.body.text,
-                name: req.body.name,
-                avatar: req.body.avatar,
+                name: req.user.name,
+                avatar: req.user.avatar,
                 user: req.user.id
-            }
+            }          
             post.comments.unshift(newComment);
             post.save().then(post => res.json(post));
         }).catch(err => res.json({err: 'Post not found'}));
